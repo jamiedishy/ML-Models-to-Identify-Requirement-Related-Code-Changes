@@ -47,16 +47,14 @@ for classifier in classifier_array:
         max_features = ['auto', 'sqrt']
         max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
         max_depth.append(None)
-        min_samples_split = [2, 5, 10]
-        min_samples_leaf = [1, 2, 4]
         bootstrap = [True, False]
-        #  2 * 12 * 2 * 3 * 3 * 10 = 4320 settings
+        max_leaf_nodes = [2, 3, 4, 6, 10]
+        max_leaf_nodes.append(None)
         random_parameter_values = {'n_estimators': n_estimators,
                                    'max_features': max_features,
                                    'max_depth': max_depth,
-                                   'min_samples_split': min_samples_split,
-                                   'min_samples_leaf': min_samples_leaf,
-                                   'bootstrap': bootstrap}
+                                   'bootstrap': bootstrap,
+                                   'max_leaf_nodes': max_leaf_nodes}
         rf = RandomForestClassifier()
         rf_random = RandomizedSearchCV(estimator=rf, param_distributions=random_parameter_values,
                                        n_iter=3, cv=3, verbose=1, random_state=42, n_jobs=-1, scoring="f1_weighted")
