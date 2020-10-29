@@ -65,9 +65,44 @@ for classifier in classifier_array:
         print('\n Best Estimator: ', rf_random.best_estimator_)
         print('\n RandomForestClassifier() - With Best Estimator Parameter Values')
         # pprint(rf_random.best_score_) MSU
+
         rf_best = rf_random.best_estimator_.fit(
             train_data, train_target).predict(test_data)
+
         print(classification_report(test_target, test_pred, labels=[0, 1]))
 
     else:
         print('test')
+
+
+# # Number of trees in random forest
+# n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=10)]
+# max_features = ['auto', 'sqrt']
+# max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
+# max_depth.append(None)
+# min_samples_split = [2, 5, 10]
+# min_samples_leaf = [1, 2, 4]
+# bootstrap = [True, False]
+# #  2 * 12 * 2 * 3 * 3 * 10 = 4320 settings
+# random_grid = {'n_estimators': n_estimators,
+#                'max_features': max_features,
+#                'max_depth': max_depth,
+#                'min_samples_split': min_samples_split,
+#                'min_samples_leaf': min_samples_leaf,
+#                'bootstrap': bootstrap}
+# # pprint(random_grid)
+# rf = RandomForestClassifier()
+# # The most important arguments in RandomizedSearchCV are n_iter, which controls the number of different combinations to try, and cv which is the number of folds to use for cross validation (we use 100 and 3 respectively).
+# rf_random = RandomizedSearchCV(estimator=rf, param_distributions=random_grid,
+#                                n_iter=1, cv=3, verbose=2, random_state=42, n_jobs=-1)
+# # Fit the random search model
+# test_pred = rf_random.fit(train_data, train_target).predict(test_data)
+# best_parameters = rf_random.best_params_
+# # pprint(best_parameters)
+# print(rf_random.best_estimator_)
+
+# score_best_parameters = rf_random.best_estimator_
+
+# test_pred = score_best_parameters.fit(
+#     train_data, train_target).predict(test_data)
+# print(classification_report(test_target, test_pred, labels=[0, 1]))

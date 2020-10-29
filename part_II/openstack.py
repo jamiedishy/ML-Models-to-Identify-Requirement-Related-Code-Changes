@@ -5,6 +5,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import classification_report
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 input_file_training = "../data/openstack/training.csv"
 input_file_test = "../data/openstack/test.csv"
@@ -34,9 +37,12 @@ test_data = test_data.drop('Id', axis=1)
 test_target = dataset2.isReq
 
 # print(test_target)
+classifier_array = [LogisticRegression(),
+                    KNeighborsClassifier(),
+                    GaussianNB(priors=None),
+                    RandomForestClassifier()]
 
-gnb = GaussianNB()
-#decision_t = DecisionTreeClassifier(random_state=0, max_depth=2)
-test_pred = gnb.fit(train_data, train_target).predict(test_data)
-
-print(classification_report(test_target, test_pred, labels=[0, 1]))
+for classifier in classifier_array:
+    test_pred = classifier.fit(train_data, train_target).predict(test_data)
+    print(classifier, '\n', classification_report(
+        test_target, test_pred, labels=[0, 1]))
