@@ -17,10 +17,6 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.stem import PorterStemmer
 from nltk.tokenize.treebank import TreebankWordDetokenizer
-import pdpipe as pdp
-
-# ps = PorterStemmer()
-# import adtrees as adt
 
 # step 1 - clean the data
 input_text_file = pd.read_csv(
@@ -29,7 +25,6 @@ input_text_file.to_csv(
     './data_cleaned/android/android-commit-messages.csv')
 input_commit_file = pd.read_csv(
     './data_cleaned/android/android-commit-messages.csv')
-
 input_commit_file.drop('Id', inplace=True, axis=1)
 input_commit_file.to_csv(
     './data_cleaned/android/android-commit-messages.csv')
@@ -43,33 +38,43 @@ comment = input_commit_file.Comment
 spec_chars = ["!", '"', "#", "%", "&", "'", "(", ")",
               "*", "+", ",", "-", ".", "/", ":", ";", "<",
               "=", ">", "?", "@", "[", "\\", "]", "^", "_",
-              "`", "{", "|", "}", "~", "–"]
-for char in spec_chars:
-    comment = comment.str.replace(char, ' ')
+              "`", "{", "|", "}", "~", "–", "nChange", "init", "Sig", " n n ",
+              " off by ", "\n"]
+comment = comment.str.replace('|'.join(map(re.escape, spec_chars)), '')
 comment = comment.str.split().str.join(" ")
 
-# Stematize
+# Remove Ids
+removed_id = []
+for row in comment:
+    removed_id.append(
+        re.sub(r'\w*\d\w*', '', row).strip()
+    )
+# df = pd.DataFrame(removed_id, columns=["Comment"])
+# comment = df
+# comment.to_csv('./data_cleaned/android/ahhh.csv')
+
+# Lemmatize
 w_tokenizer = nltk.tokenize.WhitespaceTokenizer()
-lemmatizer = nltk.stem.WordNetLemmatizer()
+lemmatizer = WordNetLemmatizer()
 # stemmer = PorterStemmer()
 # print(stemmer.stem('frightening'))
 # print(lemmatizer.lemmatize('frightening'))
 
+lemma_word = []
+for w in removed_id:
+    lemma_word.append(lemmatizer.lemmatize(w))
+# def lemmatize_text(text):
+#     return [lemmatizer.lemmatize(w) for w in w_tokenizer.tokenize(text)]
+# comment = comment.apply(lemmatize_text)
 
-def lemmatize_text(text):
-    return [lemmatizer.lemmatize(w) for w in w_tokenizer.tokenize(text)]
+df = pd.DataFrame(lemma_word, columns=["Comment"])
+comment = df
+comment.to_csv('./data_cleaned/android/ahhh.csv')
 
-
-comment = comment.apply(lemmatize_text)
-
+print(lemmatizer.lemmatize('fixes'))
 
 # Remove stop words
-stop = stopwords.words('english')
-comment = comment.apply(lambda x: [item for item in x if item not in stop])
+# stop = stopwords.words('english')
+# comment = comment.apply(lambda x: [item for item in x if item not in stop])
 
-# Rejoin tokenized column
-# for row in comment:
-#     TreebankWordDetokenizer().detokenize(row)
-# comment = comment.apply(lambda x: [for row in comment: ])
-
-comment.to_csv('./data_cleaned/android/removed_stop_words.csv')
+# comment.to_csv('./data_cleaned/android/removed_stop_words.csv')
