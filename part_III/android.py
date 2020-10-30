@@ -64,3 +64,25 @@ comment = comment.apply(lambda x: [item for item in x if item not in stop])
 input_text_file = input_text_file.assign(Comment=comment)
 input_text_file.to_csv(
     './data_cleaned/android/cleaned_data_android.csv', index=False)
+
+
+# Bag of Words (1 - Gram)
+# Tokenize Comment section
+comment = input_text_file.Comment
+wordfreq = {}
+to_delete = list()
+for row in comment:
+    for word in w_tokenizer.tokenize(row):
+        if word not in wordfreq.keys():
+            wordfreq[word] = 1
+            to_delete.append(word)
+        else:
+            wordfreq[word] += 1
+            if (wordfreq[word] == 4):
+                to_delete.remove(word)
+
+copy_wordfreq = dict(wordfreq)
+
+for (key, value) in copy_wordfreq.items():
+    if key in to_delete:
+        del wordfreq[key]
