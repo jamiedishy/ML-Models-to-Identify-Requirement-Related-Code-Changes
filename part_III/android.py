@@ -12,7 +12,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from nltk.corpus import stopwords
-from pprint import pprint
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.stem import PorterStemmer
@@ -22,19 +21,10 @@ from nltk.tokenize.treebank import TreebankWordDetokenizer
 
 # Open data file and remove Id column
 input_text_file = pd.read_csv(
-    "../data/android/android-commit-messages.txt")
-input_text_file.to_csv(
-    './data_cleaned/android/android-commit-messages.csv')
-input_commit_file = pd.read_csv(
-    './data_cleaned/android/android-commit-messages.csv')
-input_commit_file.drop('Id', inplace=True, axis=1)
-input_commit_file.to_csv(
-    './data_cleaned/android/android-commit-messages.csv')
-input_commit_file.drop('Unnamed: 0', inplace=True, axis=1)
-input_commit_file.to_csv(
-    './data_cleaned/android/android-commit-messages.csv')
+    "../data/android/android-commit-messages.csv")
 
-comment = input_commit_file.Comment
+comment = input_text_file.Comment
+id_column = input_text_file.Id
 
 # Remove special characters
 spec_chars = ["!", '"', "#", "%", "&", "'", "(", ")",
@@ -71,4 +61,6 @@ comment = df
 stop = stopwords.words('english')
 comment = comment.apply(lambda x: [item for item in x if item not in stop])
 
-comment.to_csv('./data_cleaned/android/removed_stop_words.csv')
+input_text_file = input_text_file.assign(Comment=comment)
+input_text_file.to_csv(
+    './data_cleaned/android/cleaned_data_android.csv', index=False)
