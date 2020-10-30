@@ -23,6 +23,10 @@ import heapq
 # Open data file and remove Id column
 input_text_file = pd.read_csv(
     "../data/android/android-commit-messages.csv")
+input_training = pd.read_csv(
+    "../data/android/training.csv")
+input_test = pd.read_csv(
+    "../data/android/test.csv")
 
 comment = input_text_file.Comment
 id_column = input_text_file.Id
@@ -32,7 +36,7 @@ spec_chars = ["!", '"', "#", "%", "&", "'", "(", ")",
               "*", "+", ",", "-", ".", "/", ":", ";", "<",
               "=", ">", "?", "@", "[", "\\", "]", "^", "_",
               "`", "{", "|", "}", "~", "–", "nChange", "init", "Sig", " n n ",
-              " off by ", "\n"]
+              " off by ", "\n", "$"]
 comment = comment.str.replace('|'.join(map(re.escape, spec_chars)), '')
 comment = comment.str.split().str.join(" ")
 
@@ -98,3 +102,13 @@ for (key, value) in copy_wordfreq.items():
         del wordfreq[key]
 
 # Convert sentences into vector representation
+training_id = input_training.Id
+test_id = input_test.Id
+
+# Sorted IDs for training data
+sorted_id_training_df = input_text_file.sort_values(by=["Id"])
+sorted_id_training_df.to_csv(
+    './data_cleaned/android/sorted_cleaned_android.csv', index=False)
+
+
+# Sorted IDs for testing data
