@@ -16,6 +16,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.stem import PorterStemmer
 from nltk.tokenize.treebank import TreebankWordDetokenizer
+import heapq
 
 # step 1 - clean the data
 
@@ -54,12 +55,21 @@ for row in removed_id:
         place_holder += stemmer.stem(word) + " "
     lemma_word.append(place_holder)
 
-df = pd.DataFrame(lemma_word, columns=["Comment"])
-comment = df
 
 # Remove stop words
 stop = stopwords.words('english')
-comment = comment.apply(lambda x: [item for item in x if item not in stop])
+# comment = comment.apply(lambda x: [item for item in x if item not in stop])
+non_stop_words = []
+for row in lemma_word:
+    place_holder = ""
+    for word in w_tokenizer.tokenize(row):
+        if word.lower() not in stop:
+            place_holder += word + " "
+    non_stop_words.append(place_holder)
+
+df = pd.DataFrame(non_stop_words, columns=["Comment"])
+comment = df
+
 
 input_text_file = input_text_file.assign(Comment=comment)
 input_text_file.to_csv(
@@ -86,3 +96,5 @@ copy_wordfreq = dict(wordfreq)
 for (key, value) in copy_wordfreq.items():
     if key in to_delete:
         del wordfreq[key]
+
+# Convert sentences into vector representation
