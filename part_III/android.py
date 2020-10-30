@@ -19,6 +19,8 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize.treebank import TreebankWordDetokenizer
 
 # step 1 - clean the data
+
+# Open data file and remove Id column
 input_text_file = pd.read_csv(
     "../data/android/android-commit-messages.txt")
 input_text_file.to_csv(
@@ -56,10 +58,10 @@ stemmer = PorterStemmer()
 
 lemma_word = []
 place_holder = []
-for w in removed_id:
+for row in removed_id:
     place_holder = ""
-    for test in w_tokenizer.tokenize(w):
-        place_holder += stemmer.stem(test) + " "
+    for word in w_tokenizer.tokenize(row):
+        place_holder += stemmer.stem(word) + " "
     lemma_word.append(place_holder)
 
 df = pd.DataFrame(lemma_word, columns=["Comment"])
