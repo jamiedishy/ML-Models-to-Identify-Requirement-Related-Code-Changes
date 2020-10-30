@@ -49,32 +49,24 @@ for row in comment:
     removed_id.append(
         re.sub(r'\w*\d\w*', '', row).strip()
     )
-# df = pd.DataFrame(removed_id, columns=["Comment"])
-# comment = df
-# comment.to_csv('./data_cleaned/android/ahhh.csv')
 
-# Lemmatize
+# Stemming
 w_tokenizer = nltk.tokenize.WhitespaceTokenizer()
-lemmatizer = WordNetLemmatizer()
-# stemmer = PorterStemmer()
-# print(stemmer.stem('frightening'))
-# print(lemmatizer.lemmatize('frightening'))
+stemmer = PorterStemmer()
 
 lemma_word = []
+place_holder = []
 for w in removed_id:
-    lemma_word.append(lemmatizer.lemmatize(w))
-# def lemmatize_text(text):
-#     return [lemmatizer.lemmatize(w) for w in w_tokenizer.tokenize(text)]
-# comment = comment.apply(lemmatize_text)
+    place_holder = ""
+    for test in w_tokenizer.tokenize(w):
+        place_holder += stemmer.stem(test) + " "
+    lemma_word.append(place_holder)
 
 df = pd.DataFrame(lemma_word, columns=["Comment"])
 comment = df
-comment.to_csv('./data_cleaned/android/ahhh.csv')
-
-print(lemmatizer.lemmatize('fixes'))
 
 # Remove stop words
-# stop = stopwords.words('english')
-# comment = comment.apply(lambda x: [item for item in x if item not in stop])
+stop = stopwords.words('english')
+comment = comment.apply(lambda x: [item for item in x if item not in stop])
 
-# comment.to_csv('./data_cleaned/android/removed_stop_words.csv')
+comment.to_csv('./data_cleaned/android/removed_stop_words.csv')
