@@ -101,14 +101,34 @@ for (key, value) in copy_wordfreq.items():
     if key in to_delete:
         del wordfreq[key]
 
-# Convert sentences into vector representation
-training_id = input_training.Id
-test_id = input_test.Id
 
-# Sorted IDs for training data
-sorted_id_training_df = input_text_file.sort_values(by=["Id"])
-sorted_id_training_df.to_csv(
-    './data_cleaned/android/sorted_cleaned_android.csv', index=False)
+sentence_vectors = []
+count = 1
+for sentence in comment:
+    sentece_tokens = nltk.word_tokenize(sentence)
+    sent_vec = []
+    # print(setence)
+    for token in wordfreq:
+        if token in sentece_tokens:
+            sent_vec.append(1)
+        else:
+            sent_vec.append(0)
+    sentence_vectors.append(sent_vec)
 
+word_frequency_android_df = pd.DataFrame(sentence_vectors, columns=wordfreq)
 
-# Sorted IDs for testing data
+word_frequency_android_df = word_frequency_android_df.assign(
+    Id=input_text_file.Id)
+word_frequency_android_df.to_csv(
+    './data_cleaned/android/word_frequency_android.csv', index=False)
+
+# # Sorted IDs for training data and test data
+# sorted_id_training_df = input_text_file.sort_values(by=["Id"])
+# # CSV of training comments
+# training_comment_android_df = sorted_id_training_df[sorted_id_training_df['Id'] <= 22328]
+# training_comment_android_df.to_csv(
+#     './data_cleaned/android/training_comment_data_android.csv', index=False)
+# # CSV of testing comments
+# testing_comment_android_df = sorted_id_training_df[sorted_id_training_df['Id'] > 22328]
+# testing_comment_android_df.to_csv(
+#     './data_cleaned/android/testing_comment_data_android.csv', index=False)
