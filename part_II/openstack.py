@@ -34,7 +34,7 @@ test_target = dataset2.isReq
 # print('testarget', test_target)
 
 classifier_array = [LogisticRegression(),
-                    KNeighborsClassifier(),
+                    DecisionTreeClassifier(),
                     RandomForestClassifier()]
 
 for classifier in classifier_array:
@@ -49,25 +49,35 @@ for classifier in classifier_array:
                                  cv=3, verbose=2, n_jobs=-1, scoring="f1_weighted")
         # Fit the random search model
         test_pred = rf_random.fit(train_data, train_target).predict(test_data)
-        # print('\n Best Estimator: ', rf_random.best_estimator_)
+        score_csv = rf_random.cv_results_
+        score_csv_df = pd.DataFrame(score_csv)
+        score_csv_df.to_csv(
+            './score/openstack/logistic_regression_openstack.csv', index=False)
+        print('\n Best Estimator: ', rf_random.best_estimator_)
         print('\n LogisticRegression() - With Best Estimator Parameter Values')
-        # pprint(rf_random.best_score_) MSU
         rf_best = rf_random.best_estimator_.fit(
             train_data, train_target).predict(test_data)
         print(classification_report(test_target, test_pred, labels=[0, 1]))
     elif classifier == classifier_array[1]:
-        n_neighbors = [3, 4, 5, 10, 7]
-        leaf_size = [20, 25, 30, 35, 40]
-        random_parameter_values = {'n_neighbors': n_neighbors,
-                                   'leaf_size': leaf_size}
-        rf = KNeighborsClassifier()
+        max_depth = [3, 70, 200, 500]
+        max_depth.append(None)
+        max_leaf_nodes = [8, 4000, 600, 1200]
+        max_leaf_nodes.append(None)
+        min_samples_split = [1.0, 2, 10, 20, 100]
+        random_parameter_values = {'max_depth': max_depth,
+                                   'max_leaf_nodes': max_leaf_nodes,
+                                   'min_samples_split': min_samples_split}
+        rf = DecisionTreeClassifier()
         rf_random = GridSearchCV(estimator=rf, param_grid=random_parameter_values,
                                  cv=3, verbose=2, n_jobs=-1, scoring="f1_weighted")
         # Fit the random search model
         test_pred = rf_random.fit(train_data, train_target).predict(test_data)
-        # print('\n Best Estimator: ', rf_random.best_estimator_)
-        print('\n KNeighborsClassifier() - With Best Estimator Parameter Values')
-        # pprint(rf_random.best_score_) MSU
+        score_csv = rf_random.cv_results_
+        score_csv_df = pd.DataFrame(score_csv)
+        score_csv_df.to_csv(
+            './score/openstack/decision_tree_openstack.csv', index=False)
+        print('\n Best Estimator: ', rf_random.best_estimator_)
+        print('\n DecisionTreeClassifier() - With Best Estimator Parameter Values')
         rf_best = rf_random.best_estimator_.fit(
             train_data, train_target).predict(test_data)
         print(classification_report(test_target, test_pred, labels=[0, 1]))
@@ -86,9 +96,12 @@ for classifier in classifier_array:
                                  cv=3, verbose=2, n_jobs=-1, scoring="f1_weighted")
         # Fit the random search model
         test_pred = rf_random.fit(train_data, train_target).predict(test_data)
-        # print('\n Best Estimator: ', rf_random.best_estimator_)
+        score_csv = rf_random.cv_results_
+        score_csv_df = pd.DataFrame(score_csv)
+        score_csv_df.to_csv(
+            './score/openstack/random_forest_openstack.csv', index=False)
+        print('\n Best Estimator: ', rf_random.best_estimator_)
         print('\n RandomForestClassifier() - With Best Estimator Parameter Values')
-        # pprint(rf_random.best_score_) MSU
         rf_best = rf_random.best_estimator_.fit(
             train_data, train_target).predict(test_data)
         print(classification_report(test_target, test_pred, labels=[0, 1]))
