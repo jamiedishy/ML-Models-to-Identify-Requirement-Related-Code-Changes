@@ -5,7 +5,7 @@ import re
 import nltk
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import classification_report, f1_score
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.stem import PorterStemmer
@@ -128,7 +128,7 @@ test_target = testing_data_final_df.isReq
 testing_data_final_df = testing_data_final_df.drop('isReq', axis=1)
 testing_data_final_df = testing_data_final_df.drop('Id', axis=1)
 
-test_pred = RandomForestClassifier().fit(
+test_pred = DecisionTreeClassifier().fit(
     training_data_final_df, train_target).predict(testing_data_final_df)
-print("RandomForestClassifier", '\n', classification_report(
+print("DeicisionTreeClassifier", '\n', classification_report(
     test_target, test_pred, labels=[0, 1]))
