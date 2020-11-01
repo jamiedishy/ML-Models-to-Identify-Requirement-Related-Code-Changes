@@ -87,10 +87,11 @@ def word_freq():
 wordfreq = word_freq()
 
 print("Creating table for most frequent words given Comment column")
+
 sentence_vectors = []
 count = 1
-for sentence in comment_df:
-    sentece_tokens = nltk.word_tokenize(sentence)
+for index, row in comment_df.items():
+    sentece_tokens = nltk.word_tokenize(row)
     sent_vec = []
     for token in wordfreq:
         if token in sentece_tokens:
