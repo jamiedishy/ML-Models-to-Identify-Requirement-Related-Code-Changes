@@ -3,13 +3,12 @@ import csv as csv
 import pandas as pd
 import re
 import nltk
-from sklearn.metrics import precision_recall_fscore_support
-from sklearn.metrics import classification_report, f1_score
+from sklearn.metrics import classification_report
 from sklearn.tree import DecisionTreeClassifier
 from nltk.corpus import stopwords
-from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
-
+from sklearn.feature_extraction.text import CountVectorizer
 
 # Open data file and remove Id column
 print("Creating testing, training and commit dataframes")
@@ -60,66 +59,33 @@ comment_df = comment_df.apply(lambda x: stem_remove_stop_words(x))
 comment_df.to_csv(
     './data_cleaned/android/cleaned_data_android.csv', index=False)
 
-# Bag of Words (1 - Gram)
-# Remove words with frequency <= 3
 print("Collecting most frequent words from clean commit data with frequency > 3")
-
-
-def word_freq():
-    wordfreq = {}
-    to_delete = list()
-    for index, row in comment_df.items():
-        for word in w_tokenizer.tokenize(row):
-            if word not in wordfreq.keys():
-                wordfreq[word] = 1
-                to_delete.append(word)
-            else:
-                wordfreq[word] += 1
-                if (wordfreq[word] == 40):
-                    to_delete.remove(word)
-    copy_wordfreq = dict(wordfreq)
-    for (key, value) in copy_wordfreq.items():
-        if key in to_delete:
-            del wordfreq[key]
-    return wordfreq
-
-
-wordfreq = word_freq()
+vectorizer = CountVectorizer(stop_words="english", min_df=40)
+frequent_words = vectorizer.fit_transform(comment_df)
 
 print("Creating table for most frequent words given Comment column")
 
-sentence_vectors = []
-count = 1
-for index, row in comment_df.items():
-    sentece_tokens = nltk.word_tokenize(row)
-    sent_vec = []
-    for token in wordfreq:
-        if token in sentece_tokens:
-            sent_vec.append(1)
-        else:
-            sent_vec.append(0)
-    sentence_vectors.append(sent_vec)
+def bag_of_words():
+    sentence_vectors = []
+    for index, row in comment_df.items():
+        sentece_tokens = nltk.word_tokenize(row)
+        sent_vec = []
+        for token in vectorizer.get_feature_names():
+            if token in sentece_tokens:
+                sent_vec.append(1)
+            else:
+                sent_vec.append(0)
+        sentence_vectors.append(sent_vec)
+    return sentence_vectors
 
-word_frequency_android_df = pd.DataFrame(sentence_vectors, columns=wordfreq)
-
-print("View most frequent word table in /part_III/data_cleaned/android/word_frequency_android.csv")
+word_frequency_android_df = pd.DataFrame(
+    bag_of_words(), columns=vectorizer.get_feature_names())
 word_frequency_android_df = word_frequency_android_df.assign(
     Id=input_text_file.Id)
-word_frequency_android_df.to_csv(
-    './data_cleaned/android/word_frequency_android.csv', index=False)
-
-print("View final training data with bag of words in /part_III/data_cleaned/android/training_data_final.csv")
 training_data_final_df = pd.merge(left=input_training, right=word_frequency_android_df,
                                   how='left', left_on='Id', right_on='Id')
-training_data_final_df.to_csv(
-    './data_cleaned/android/training_data_final.csv', index=False)
-
-print("View final testing data with bag of words in part_III/data_cleaned/android/testing_data_final.csv")
 testing_data_final_df = pd.merge(left=input_test, right=word_frequency_android_df,
                                  how='left', left_on='Id', right_on='Id')
-testing_data_final_df.to_csv(
-    './data_cleaned/android/testing_data_final.csv', index=False)
-
 
 train_target = training_data_final_df.isReq
 training_data_final_df = training_data_final_df.drop('isReq', axis=1)
@@ -128,6 +94,16 @@ training_data_final_df = training_data_final_df.drop('Id', axis=1)
 test_target = testing_data_final_df.isReq
 testing_data_final_df = testing_data_final_df.drop('isReq', axis=1)
 testing_data_final_df = testing_data_final_df.drop('Id', axis=1)
+
+word_frequency_android_df.to_csv(
+    './data_cleaned/android/word_frequency_android.csv', index=False)
+print("View most frequent word table in /part_III/data_cleaned/android/word_frequency_android.csv")
+training_data_final_df.to_csv(
+    './data_cleaned/android/training_data_final.csv', index=False)
+print("View final training data with bag of words in /part_III/data_cleaned/android/training_data_final.csv")
+testing_data_final_df.to_csv(
+    './data_cleaned/android/testing_data_final.csv', index=False)
+print("View final testing data with bag of words in part_III/data_cleaned/android/testing_data_final.csv")
 
 test_pred = DecisionTreeClassifier().fit(
     training_data_final_df, train_target).predict(testing_data_final_df)
